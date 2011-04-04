@@ -51,3 +51,14 @@ Afterword
 There is a clear divide between the RA parts and the HPT parts. Whereas the HPT 
 parts can be executed on the untrusted client-side, the RA parts must be 
 executed under a trusted environment.
+
+Notes
+=====
+A potential technique for properly handling memleaks when response_add_header
+or response_write fails.
+1. Write free_headers() and free_segments()
+2. If failure occurs while adding a header, free all the previous added headers
+   and return false. This indicates that we should stop trying to serve the page.
+3. If failure occurs while adding a segment, free all headers and previous
+   segments and return false. This indicates that we should stop trying to serve
+   the page.
