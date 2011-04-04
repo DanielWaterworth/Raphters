@@ -45,16 +45,17 @@ struct response {
 };
 
 response *response_empty() {
-    response *result = malloc(sizeof(response));
-    result->header_head = NULL;
-    result->header_tail = NULL;
-    result->segment_head = NULL;
-    result->segment_tail = NULL;
-    return result;
+    calloc(1, sizeof(response));
 }
 
-void response_write(response *res, const char *text) {
+/*
+  The structure of your code makes it difficult to correctly handle the error condition where response_write or response_add_header fails.
+*/
+
+bool response_write(response *res, const char *text) {
     text_segment *segment = malloc(sizeof(text_segment));
+    if (!segment) return false;
+
     segment->text = strdup(text);
     segment->next = NULL;
     if (res->segment_head == NULL) {
@@ -63,10 +64,13 @@ void response_write(response *res, const char *text) {
         res->segment_tail->next = segment;
     }
     res->segment_tail = segment;
+    return true;
 }
 
-void response_add_header(response *res, const char *name, const char *val) {
+bool response_add_header(response *res, const char *name, const char *val) {
     header *h = malloc(sizeof(header));
+    if (!h) return false;
+
     h->name = strdup(name);
     h->value = strdup(val);
     h->next = NULL;
@@ -76,10 +80,11 @@ void response_add_header(response *res, const char *name, const char *val) {
         res->header_tail->next = h;
     }
     res->header_tail = h;
+    return true;
 }
 
 void response_send(response *res) {
-    header *cur_h;
+    header* cur_h;
     for (cur_h = res->header_head; cur_h != NULL;) {
         printf("%s: %s\n", cur_h->name, cur_h->value);
         free(cur_h->name);
@@ -90,7 +95,7 @@ void response_send(response *res) {
         cur_h = next;
     }
     printf("\n");
-    text_segment *cur_s;
+    text_segment* cur_s;
     for (cur_s = res->segment_head; cur_s != NULL;) {
         printf("%s", cur_s->text);
         free(cur_s->text);
@@ -99,4 +104,10 @@ void response_send(response *res) {
         free(cur_s);
         cur_s = next;
     }
+
+    response_cleanup(res);
 }
+
+void response_cleanup(response* res) {
+    if (res) free (res);
+}           

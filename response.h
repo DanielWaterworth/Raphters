@@ -27,7 +27,7 @@ typedef struct response response;
 
 response *response_empty();
 
-void response_add_header(response *, const char *, const char *);
-void response_write(response *, const char *);
-
+bool response_add_header(response *, const char *, const char *);
+bool response_write(response *, const char *);
+void response_cleanup(response* );
 #endif

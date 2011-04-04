@@ -18,9 +18,10 @@
 */
 
 #include "raphters.h"
-
+#include "dispatcher.h"
 void serve_forever() {
     while(FCGI_Accept() >= 0) {
         dispatch();
     }
+    cleanup_handlers();
 }

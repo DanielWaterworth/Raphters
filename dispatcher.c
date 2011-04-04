@@ -21,6 +21,7 @@
 #include "request.h"
 
 #include "string.h"
+#include "stdio.h"
 
 #include "fcgi_stdio.h"
 
@@ -58,12 +59,12 @@ void dispatch() {
     }
     for (cur = head; cur != NULL; cur = cur->next) {
         if (cur->method == method) {
-            if (cur->regex == NULL) {
-                cur->regex = malloc(sizeof(regex_t));
-                regcomp(cur->regex, cur->regex_str, 0);
+            if (cur->regex_set == false) {
+                if (regcomp(&(cur->regex), cur->regex_str, 0)) continue;
+                cur->regex_set = true;
             }
             regmatch_t *matches = malloc(sizeof(regmatch_t) * cur->nmatch);
-            int m = regexec(cur->regex, path_info, cur->nmatch, matches, 0);
+            int m = regexec(&(cur->regex), path_info, cur->nmatch, matches, 0);
             if (m == 0) {
                 cur->func(matches);
                 free(matches);
@@ -82,4 +83,14 @@ void add_handler(handler *h) {
         last->next = h;
     }
     last = h;
+}
+
+void cleanup_handlers() {
+  handler *curr = head, *temp = NULL;
+  while (curr != last) {
+    if (curr->regex_set)
+      regfree(&(curr->regex));
+    curr = curr->next;
+  }
+  if (curr->regex_set) regfree(&(curr->regex));
 }
