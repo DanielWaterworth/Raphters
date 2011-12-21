@@ -1,8 +1,8 @@
 /*
     Copyright (C) 2011 Raphters authors,
-    
+
     This file is part of Raphters.
-    
+
     Raphters is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -84,7 +84,7 @@ void response_send(response *res) {
         printf("%s: %s\n", cur_h->name, cur_h->value);
         free(cur_h->name);
         free(cur_h->value);
-        
+
         header *next = cur_h->next;
         free(cur_h);
         cur_h = next;
@@ -94,7 +94,7 @@ void response_send(response *res) {
     for (cur_s = res->segment_head; cur_s != NULL;) {
         printf("%s", cur_s->text);
         free(cur_s->text);
-        
+
         text_segment *next = cur_s->next;
         free(cur_s);
         cur_s = next;
